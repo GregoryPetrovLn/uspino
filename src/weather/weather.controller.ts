@@ -1,4 +1,12 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
@@ -10,14 +18,29 @@ import { WeatherService } from './weather.service';
 export class WeatherController {
   constructor(
     private weatherService: WeatherService,
-    private jwtStrategy: JwtStrategy
+    private jwtStrategy: JwtStrategy,
   ) {}
   @Get()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
-  async getWeather(@Query('city') city: string, @Req() request: Request) {
+  async getWeather(
+    @Query('lat') lat: string,
+    @Query('lon') lon: string,
+    @Req() request: Request,
+  ) {
     console.log('Auth Header:', request.headers.authorization);
     console.log('User:', request.user);
-    return this.weatherService.getWeather(city, new Date().toISOString());
+
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      throw new HttpException(
+        'Invalid latitude or longitude',
+        HttpStatus.BAD_REQUEST, 
+      );
+    }
+
+    return this.weatherService.getWeather(latitude, longitude);
   }
 
   @Get('limit')

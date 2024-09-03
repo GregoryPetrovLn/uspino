@@ -17,34 +17,36 @@ export class WeatherService {
     this.apiUrl = this.configService.get<string>('WEATHER_API_URL');
   }
 
-  async getWeather(city: string, date: string) {
-    const url = `${this.apiUrl}/data/2.5/weather?q=${city}&appid=${this.apiKey}&units=metric`;
-    
-    const { data } = await firstValueFrom(
-      this.httpService.get(url).pipe(
-        catchError((error: AxiosError) => {
-          console.error(error.response.data);
-          throw new HttpException('An error occurred while fetching weather data', HttpStatus.BAD_GATEWAY);
-        }),
-      ),
-    );
+  async getWeather(lat: number, lon: number) {
+    const url = `${this.apiUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}`;
 
-    return {
-      city: data.name,
-      temperature: data.main.temp,
-      description: data.weather[0].description,
-      date: new Date().toISOString(),
-    };
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get(url).pipe(
+          catchError((error: AxiosError) => {
+            console.log(error.response.data);
+            throw new HttpException(
+              'An error occurred while fetching the weather data',
+              HttpStatus.BAD_GATEWAY,
+            );
+          }),
+        ),
+      );
+
+      // Log the received data for debugging
+      console.log('Received weather data:', JSON.stringify(data, null, 2));
+
+      return data;
+    } catch (error) {
+      return null;
+    }
   }
 
   async getUserLimit() {
-    // Implement user limit logic here
-    // For now, we'll return a static limit
     return { limit: 50 };
   }
 
   async sendLimitExceededMessage(userId: string, userLimit: number) {
-    // Implement message sending logic here
     console.log(`User ${userId} has exceeded the limit of ${userLimit}`);
   }
 }
