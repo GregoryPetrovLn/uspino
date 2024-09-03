@@ -42,7 +42,4 @@ export class User {
   @MinLength(2)
   @MaxLength(50)
   lastName: string;
-
-  @Column({ default: 0 })
-  requestCount: number;
 }

@@ -13,10 +13,15 @@ export class UserLimitService {
       host: this.configService.get<string>('REDIS_HOST'),
       port: this.configService.get<number>('REDIS_PORT'),
     });
-    this.defaultUserLimit = this.configService.get<number>('DEFAULT_USER_REQUEST_LIMIT', 100);
-    this.requestCountExpiration = this.configService.get<number>('REQUEST_COUNT_EXPIRATION', 86400);
+    this.defaultUserLimit = this.configService.get<number>(
+      'DEFAULT_USER_REQUEST_LIMIT',
+      100,
+    );
+    this.requestCountExpiration = this.configService.get<number>(
+      'REQUEST_COUNT_EXPIRATION',
+      86400,
+    );
   }
-
 
   private getUserKey(userId: number): string {
     return `user:${userId}:requestCount`;
@@ -34,7 +39,7 @@ export class UserLimitService {
   async getUserRequestCount(userId: number): Promise<number> {
     const key = this.getUserKey(userId);
     const count = await this.redis.get(key);
-    console.log('-------count',count) 
+
     return count ? parseInt(count, 10) : 0;
   }
 
