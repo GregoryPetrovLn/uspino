@@ -27,7 +27,7 @@ export class AuthController {
   async validateUser(@Request() req) {
     console.log('Validate route accessed');
     return req.user;
-  }
+  }x
 
   @Get('test')
   testRoute() {

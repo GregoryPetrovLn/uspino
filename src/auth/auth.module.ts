@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Module, OnModuleInit } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UsersModule } from '../users/users.module';
@@ -11,12 +11,16 @@ import { LocalStrategy } from './local.strategy';
 @Module({
   imports: [
     UsersModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    ConfigModule, // Make sure this is here
     JwtModule.registerAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        signOptions: { expiresIn: configService.get('JWT_EXPIRATION_TIME') },
+        signOptions: { 
+          expiresIn: configService.get('JWT_EXPIRATION_TIME') + 's',
+        },
       }),
     }),
   ],
@@ -24,6 +28,12 @@ import { LocalStrategy } from './local.strategy';
   exports: [AuthService],
   controllers: [AuthController],
 })
-export class AuthModule {}
-// Add this line at the end of the file
-console.log('AuthModule loaded');
+export class AuthModule implements OnModuleInit {
+  constructor(private configService: ConfigService) {}
+
+  onModuleInit() {
+    console.log('AuthModule initialized');
+    console.log('JWT_SECRET is set:', !!this.configService.get('JWT_SECRET'));
+    console.log('JWT_EXPIRATION_TIME:', this.configService.get('JWT_EXPIRATION_TIME'));
+  }
+}
