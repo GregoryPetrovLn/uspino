@@ -12,10 +12,12 @@ export class EmailService {
     private usersService: UsersService,
   ) {
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use TLS
       auth: {
         user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASS'),
+        pass: this.configService.get<string>('EMAIL_PASSWORD'), // Note: Changed from EMAIL_PASS to EMAIL_PASSWORD
       },
     });
   }
@@ -30,11 +32,17 @@ export class EmailService {
 
     const mailOptions = {
       from: this.configService.get<string>('EMAIL_USER'),
-      to: 'grishap96123@gmail.com', //user.email,
+      to: user.email, // Changed back to user.email
       subject: 'Weather API Request Limit Exceeded',
       text: `Dear ${user.firstName},\n\nYou have exceeded your daily limit of ${userLimit} requests for the Weather API.\n\nPlease try again tomorrow or upgrade your plan for more requests.\n\nBest regards,\nWeather API Team`,
     };
 
-    await this.transporter.sendMail(mailOptions);
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log('Limit exceeded email sent successfully');
+    } catch (error) {
+      console.error('Failed to send limit exceeded email:', error);
+      throw error;
+    }
   }
 }
