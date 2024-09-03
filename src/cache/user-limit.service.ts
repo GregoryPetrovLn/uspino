@@ -14,8 +14,9 @@ export class UserLimitService {
       port: this.configService.get<number>('REDIS_PORT'),
     });
     this.defaultUserLimit = this.configService.get<number>('DEFAULT_USER_REQUEST_LIMIT', 100);
-    this.requestCountExpiration = this.configService.get<number>('REQUEST_COUNT_EXPIRATION', 86400); // 24 hours in seconds
+    this.requestCountExpiration = this.configService.get<number>('REQUEST_COUNT_EXPIRATION', 86400);
   }
+
 
   private getUserKey(userId: number): string {
     return `user:${userId}:requestCount`;
@@ -29,16 +30,12 @@ export class UserLimitService {
     }
     return count;
   }
- 
+
   async getUserRequestCount(userId: number): Promise<number> {
     const key = this.getUserKey(userId);
     const count = await this.redis.get(key);
+    console.log('-------count',count) 
     return count ? parseInt(count, 10) : 0;
-  }
-
-  async resetUserRequestCount(userId: number): Promise<void> {
-    const key = this.getUserKey(userId);
-    await this.redis.del(key);
   }
 
   async isLimitExceeded(userId: number): Promise<boolean> {

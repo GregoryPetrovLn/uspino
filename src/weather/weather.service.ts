@@ -5,6 +5,9 @@ import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
+import { UserLimitService } from 'src/cache/user-limit.service';
+import { RabbitMQService } from 'src/rabbitmq/rabbit.service';
+
 
 @Injectable()
 export class WeatherService {
@@ -15,12 +18,25 @@ export class WeatherService {
     private configService: ConfigService,
     private httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private userLimitService: UserLimitService,
+    private rabbitMQService: RabbitMQService,
   ) {
     this.apiKey = this.configService.get<string>('WEATHER_API_KEY');
     this.apiUrl = this.configService.get<string>('WEATHER_API_URL');
   }
 
-  async getWeather(city: string, date: string) {
+  async getWeather(userId: number, city: string, date: string) {
+    // Check user limit
+    const isLimitExceeded = await this.userLimitService.isLimitExceeded(userId);
+    if (isLimitExceeded) {
+      const userLimit = this.userLimitService.getUserLimit();
+      await this.rabbitMQService.sendLimitExceededMessage(userId, userLimit);
+      throw new HttpException('User request limit exceeded', HttpStatus.TOO_MANY_REQUESTS);
+    }
+
+    // Increment user request count
+    await this.userLimitService.incrementUserRequestCount(userId);
+
     const cacheKey = `weather:${city}:${date}`;
     const cachedData = await this.cacheManager.get(cacheKey);
 
@@ -32,7 +48,7 @@ export class WeatherService {
 
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(url).pipe( 
+        this.httpService.get(url).pipe(
           catchError((error: AxiosError) => {
             console.log(error.response.data);
             throw new HttpException(
@@ -43,9 +59,6 @@ export class WeatherService {
         ),
       );
 
-      // Log the received data for debugging
-      console.log('Received weather data:', JSON.stringify(data, null, 2));
-
       // Cache the data
       await this.cacheManager.set(cacheKey, data, this.configService.get<number>('CACHE_TTL') * 1000);
 
@@ -53,13 +66,5 @@ export class WeatherService {
     } catch (error) {
       return null;
     }
-  }
-
-  async getUserLimit() {
-    return { limit: 50 };
-  }
-
-  async sendLimitExceededMessage(userId: string, userLimit: number) {
-    console.log(`User ${userId} has exceeded the limit of ${userLimit}`);
   }
 }

@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CacheModule } from './cache/cache.module';
 import { EmailModule } from './email/email.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { UsersModule } from './users/users.module';
 import { WeatherModule } from './weather/weather.module';
 
@@ -44,7 +45,7 @@ import { WeatherModule } from './weather/weather.module';
     UsersModule,
     WeatherModule,
     CacheModule,
-    // RabbitMQModule,
+    RabbitMQModule,
     EmailModule,
   ],
   controllers: [AppController],

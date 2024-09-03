@@ -10,18 +10,23 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: this.configService.get('EMAIL_USER'),
-        pass: this.configService.get('EMAIL_PASSWORD'),
+        user: this.configService.get<string>('EMAIL_USER'),
+        pass: this.configService.get<string>('EMAIL_PASS'),
       },
     });
   }
 
-  async sendEmail(to: string, subject: string, text: string): Promise<void> {
-    await this.transporter.sendMail({
-      from: this.configService.get('EMAIL_USER'),
-      to,
-      subject,
-      text,
-    });
+  async sendLimitExceededEmail(userId: number, userLimit: number) {
+    // In a real application, you would fetch the user's email from the database
+    const userEmail = 'user@example.com'; // Replace with actual user email
+
+    const mailOptions = {
+      from: this.configService.get<string>('EMAIL_USER'),
+      to: userEmail,
+      subject: 'Weather API Request Limit Exceeded',
+      text: `Dear user,\n\nYou have exceeded your daily limit of ${userLimit} requests for the Weather API.\n\nPlease try again tomorrow or upgrade your plan for more requests.\n\nBest regards,\nWeather API Team`,
+    };
+
+    await this.transporter.sendMail(mailOptions);
   }
 }
