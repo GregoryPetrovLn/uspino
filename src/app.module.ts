@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CacheModule } from './cache/cache.module';
 import { EmailModule } from './email/email.module';
 import { UsersModule } from './users/users.module';
 import { WeatherModule } from './weather/weather.module';
@@ -32,15 +33,17 @@ import { WeatherModule } from './weather/weather.module';
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ([{
-        ttl: config.get('RATE_LIMIT_TTL'),
-        limit: config.get('RATE_LIMIT_MAX'),
-      }]),
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('RATE_LIMIT_TTL'),
+          limit: config.get('RATE_LIMIT_MAX'),
+        },
+      ],
     }),
     AuthModule,
     UsersModule,
     WeatherModule,
-    // CacheModule,
+    CacheModule,
     // RabbitMQModule,
     EmailModule,
   ],
