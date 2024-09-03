@@ -1,30 +1,50 @@
-import { RabbitRPC } from '@golevelup/nestjs-rabbitmq';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cache } from 'cache-manager';
+import { AxiosError } from 'axios';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class WeatherService {
+  private readonly apiKey: string;
+  private readonly apiUrl: string;
+
   constructor(
     private configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+    private httpService: HttpService,
+  ) {
+    this.apiKey = this.configService.get<string>('WEATHER_API_KEY');
+    this.apiUrl = this.configService.get<string>('WEATHER_API_URL');
+  }
 
   async getWeather(city: string, date: string) {
-    // Implement weather fetching logic here
+    const url = `${this.apiUrl}/data/2.5/weather?q=${city}&appid=${this.apiKey}&units=metric`;
+    
+    const { data } = await firstValueFrom(
+      this.httpService.get(url).pipe(
+        catchError((error: AxiosError) => {
+          console.error(error.response.data);
+          throw new HttpException('An error occurred while fetching weather data', HttpStatus.BAD_GATEWAY);
+        }),
+      ),
+    );
+
+    return {
+      city: data.name,
+      temperature: data.main.temp,
+      description: data.weather[0].description,
+      date: new Date().toISOString(),
+    };
   }
 
   async getUserLimit() {
     // Implement user limit logic here
+    // For now, we'll return a static limit
+    return { limit: 50 };
   }
 
-  @RabbitRPC({
-    exchange: 'weather',
-    routingKey: 'getUserLimit',
-    queue: 'weather_user_limit',
-  })
-  public async getUserLimitRPC(data: { userId: string }) {
-    // Implement RPC logic here
+  async sendLimitExceededMessage(userId: string, userLimit: number) {
+    // Implement message sending logic here
+    console.log(`User ${userId} has exceeded the limit of ${userLimit}`);
   }
 }
