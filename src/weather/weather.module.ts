@@ -7,13 +7,21 @@ import { EmailConsumer } from 'src/email/email.consumer';
 import { EmailService } from 'src/email/email.services';
 import { RabbitMQService } from 'src/rabbitmq/rabbit.service';
 import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
+import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { JwtStrategy } from '../auth/jwt.strategy';
 import { WeatherController } from './weather.controller';
 import { WeatherService } from './weather.service';
 
 @Module({
-  imports: [ConfigModule, HttpModule, AuthModule, CacheModule, RabbitMQModule],
+  imports: [
+    ConfigModule,
+    HttpModule,
+    AuthModule,
+    CacheModule,
+    RabbitMQModule, 
+    UsersModule,
+  ],
   providers: [
     WeatherService,
     JwtStrategy,

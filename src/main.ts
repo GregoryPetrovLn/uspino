@@ -6,7 +6,6 @@ import { AppModule } from './app.module';
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     console.error('Global exception caught:', exception);
-    // Rethrow the exception to let NestJS handle the response
     if (exception instanceof HttpException) {
       throw exception;
     }

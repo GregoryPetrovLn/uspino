@@ -11,7 +11,6 @@ async function seed() {
   const users = [
     { username: 'user1', email: 'user1@example.com', password: 'password1', firstName: 'John', lastName: 'Doe' },
     { username: 'user2', email: 'user2@example.com', password: 'password2', firstName: 'Jane', lastName: 'Smith' },
-    // Add more test users as needed
   ];
 
   for (const userData of users) {
