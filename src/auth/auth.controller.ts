@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/users/user.entity';
 import { AuthService } from './auth.service';
@@ -27,7 +34,7 @@ export class AuthController {
   async validateUser(@Request() req) {
     console.log('Validate route accessed');
     return req.user;
-  }x
+  }
 
   @Get('test')
   testRoute() {
