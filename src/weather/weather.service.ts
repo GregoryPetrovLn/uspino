@@ -17,12 +17,12 @@ export class WeatherService {
     this.apiUrl = this.configService.get<string>('WEATHER_API_URL');
   }
 
-  async getWeather(lat: number, lon: number) {
-    const url = `${this.apiUrl}?lat=${lat}&lon=${lon}&appid=${this.apiKey}`;
+  async getWeather(city: string) {
+    const url = `${this.apiUrl}?q=${city}&appid=${this.apiKey}`;
 
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(url).pipe(
+        this.httpService.get(url).pipe( 
           catchError((error: AxiosError) => {
             console.log(error.response.data);
             throw new HttpException(
