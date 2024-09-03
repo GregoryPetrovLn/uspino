@@ -9,8 +9,8 @@ export class WeatherController {
   constructor(private weatherService: WeatherService) {}
   @Get()
   @Throttle({ default: { limit: 5, ttl: 60000 } })
-  async getWeather(@Query('city') city: string) {
-    return this.weatherService.getWeather(city);
+  async getWeather(@Query('city') city: string, @Query('date') date: string) {
+    return this.weatherService.getWeather(city, date);
   }
 
   @Get('limit')

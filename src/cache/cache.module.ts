@@ -21,8 +21,7 @@ import type { RedisClientOptions } from 'redis';
         });
 
         return {
-          store:
-            store as unknown as CacheModuleOptions<RedisClientOptions>['store'],
+          store: store as unknown as CacheModuleOptions<RedisClientOptions>['store'],
           isGlobal: true,
         };
       },

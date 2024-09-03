@@ -1,7 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
+import { Cache } from 'cache-manager';
 import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -12,13 +14,21 @@ export class WeatherService {
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     this.apiKey = this.configService.get<string>('WEATHER_API_KEY');
     this.apiUrl = this.configService.get<string>('WEATHER_API_URL');
   }
 
-  async getWeather(city: string) {
-    const url = `${this.apiUrl}?q=${city}&appid=${this.apiKey}`;
+  async getWeather(city: string, date: string) {
+    const cacheKey = `weather:${city}:${date}`;
+    const cachedData = await this.cacheManager.get(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
+    const url = `${this.apiUrl}?q=${city}&dt=${date}&appid=${this.apiKey}`;
 
     try {
       const { data } = await firstValueFrom(
@@ -35,6 +45,9 @@ export class WeatherService {
 
       // Log the received data for debugging
       console.log('Received weather data:', JSON.stringify(data, null, 2));
+
+      // Cache the data
+      await this.cacheManager.set(cacheKey, data, this.configService.get<number>('CACHE_TTL') * 1000);
 
       return data;
     } catch (error) {
