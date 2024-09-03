@@ -2,18 +2,9 @@ import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { User } from './users/user.entity';
 
-
-// Load environment variables from .env file
 config();
 
 async function seed() {
-  console.log('Environment variables:');
-  console.log('POSTGRES_HOST:', process.env.POSTGRES_HOST);
-  console.log('POSTGRES_PORT:', process.env.POSTGRES_PORT);
-  console.log('POSTGRES_USER:', process.env.POSTGRES_USER);
-  console.log('POSTGRES_DB:', process.env.POSTGRES_DB);
-  // Don't log the password for security reasons
-
   const AppDataSource = new DataSource({
     type: 'postgres',
     host: process.env.POSTGRES_HOST,
@@ -27,14 +18,32 @@ async function seed() {
 
   try {
     await AppDataSource.initialize();
-    console.log("Data Source has been initialized!");
+    console.log('Data Source has been initialized!');
 
     const userRepository = AppDataSource.getRepository(User);
 
     const users = [
-      { username: 'user1', email: 'user1@example.com', password: 'Password1!', firstName: 'John', lastName: 'Doe' },
-      { username: 'user2', email: 'user2@example.com', password: 'Password2!', firstName: 'Jane', lastName: 'Smith' },
-      { username: 'user3', email: 'user3@example.com', password: 'Password3!', firstName: 'Bob', lastName: 'Johnson' },
+      {
+        username: 'user1',
+        email: 'user1@example.com',
+        password: 'Password1!',
+        firstName: 'John',
+        lastName: 'Doe',
+      },
+      {
+        username: 'user2',
+        email: 'user2@example.com',
+        password: 'Password2!',
+        firstName: 'Jane',
+        lastName: 'Smith',
+      },
+      {
+        username: 'user3',
+        email: 'user3@example.com',
+        password: 'Password3!',
+        firstName: 'Bob',
+        lastName: 'Johnson',
+      },
     ];
 
     for (const userData of users) {
