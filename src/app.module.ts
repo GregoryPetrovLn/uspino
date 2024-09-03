@@ -5,9 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { CacheModule } from './cache/cache.module';
 import { EmailModule } from './email/email.module';
-import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { UsersModule } from './users/users.module';
 import { WeatherModule } from './weather/weather.module';
 
@@ -18,6 +16,7 @@ import { WeatherModule } from './weather/weather.module';
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get('POSTGRES_HOST'),
@@ -41,8 +40,8 @@ import { WeatherModule } from './weather/weather.module';
     AuthModule,
     UsersModule,
     WeatherModule,
-    CacheModule,
-    RabbitMQModule,
+    // CacheModule,
+    // RabbitMQModule,
     EmailModule,
   ],
   controllers: [AppController],
