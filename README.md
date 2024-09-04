@@ -82,7 +82,7 @@ Develop a server to provide weather information for a specified date and city.
 
 1. Clone the repository:
    ```
-   git clone [https://github.com/GregoryPetrovLn/uspino.git]
+   git clone https://github.com/GregoryPetrovLn/uspino.git
    cd weather-server-project
    ```
 
