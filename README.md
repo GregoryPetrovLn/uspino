@@ -1,86 +1,212 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Weather Information Server Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
+Develop a server to provide weather information for a specified date and city.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Requirements
 
-## Description
+### Authentication
+- All endpoints must be accessible only to authenticated users
+- Create an authentication endpoint:
+  - Accepts login/password
+  - Returns an accessToken if valid, otherwise an error
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Weather Data Endpoint
+- Accepts city and date
+- Returns weather data if valid, otherwise an error
+- Implement caching for weather data (TTL: 5 seconds)
+- Limit requests to 5 per second per user
+- Increment user request counter by 1 for each request
+- Return error if user exceeds their request limit
 
-## Project setup
+### User Limit Endpoint
+- Returns the user's request limit and current request count
 
-```bash
-$ npm install
+### Error Handling
+- If a user exceeds their request limit:
+  - Return an error
+  - Send a message to RabbitMQ queue (userId, userLimit)
+
+### Email Notification
+- Create a consumer to process messages from RabbitMQ queue
+- Send email notifications using Gmail
+- Mark message as processed only if email is sent successfully, otherwise resend
+
+### Data Management
+- Use seed scripts to add test data for users and weather information
+
+### Infrastructure
+- Use Docker to set up PostgreSQL, Redis, and RabbitMQ
+
+### Testing
+- Write e2e tests for all endpoints
+
+### Scripts
+- Create package.json scripts for:
+  - Starting the server
+  - Running tests
+  - Setting up infrastructure
+
+### Configuration
+- Store server port, secrets, connection URLs, etc. in a .env file
+
+## Test Data
+- Users: 3-5
+- Cities: 3-5
+- Weather records: 5-10 (for different cities and dates)
+- Cache TTL: 5 seconds
+- Weather endpoint rate limit: 5 requests/second
+- User request limit: 100
+
+## Tech Stack
+- Node.js v22 & npm (latest stable version)
+- TypeScript
+- Nest.js (Express)
+- PostgreSQL
+- Redis
+- RabbitMQ
+- JWT
+- REST API
+- JSON
+- Jest
+- Gmail (for sending emails)
+
+## How to Run the Project
+
+### Prerequisites
+- Node.js v22
+- npm (latest stable version)
+- Docker and Docker Compose
+
+### Setup and Running the Application
+
+1. Clone the repository:
+   ```
+   git clone [https://github.com/GregoryPetrovLn/uspino.git]
+   cd weather-server-project
+   ```
+
+2. Set up environment variables:
+   - Copy `.env.example` to `.env`
+   - Fill in the necessary environment variables in `.env` (see Environment Variables section below)
+
+3. Start the infrastructure services using Docker:
+   ```
+   docker-compose up -d
+   ```
+
+4. Install dependencies:
+   ```
+   npm install
+   ```
+
+5. Run database migrations and seed data:
+   ```
+   npm run seed
+   ```
+
+6. Start the server in development mode:
+   ```
+   npm run dev
+   ```
+
+### Running Tests
+- Run all tests:
+  ```
+  npm test
+  ```
+- Run e2e tests:
+  ```
+  npm run test:e2e
+  ```
+
+### Stopping the Application
+1. Stop the server (Ctrl+C in the terminal)
+
+2. Stop and remove infrastructure containers:
+   ```
+   docker-compose down
+   ```
+
+## Scripts Reference
+- `npm run build`: Build the application
+- `npm run format`: Format the code using Prettier
+- `npm start`: Start the server
+- `npm run dev`: Start the server in development mode with watch
+- `npm run start:debug`: Start the server in debug mode
+- `npm run start:prod`: Start the server in production mode
+- `npm run lint`: Lint and fix TypeScript files
+- `npm test`: Run Jest tests
+- `npm run test:watch`: Run Jest tests in watch mode
+- `npm run test:cov`: Run Jest tests with coverage
+- `npm run test:debug`: Debug Jest tests
+- `npm run test:e2e`: Run end-to-end tests
+- `npm run seed`: Run the database seeding script
+
+## Docker Compose Configuration
+
+The `docker-compose.yml` file sets up the following services:
+
+- PostgreSQL (version 14)
+- Redis (version 6)
+- RabbitMQ (version 3 with management plugin)
+
+Ensure your `.env` file contains the necessary environment variables for these services.
+
+## Environment Variables
+
+Ensure your `.env` file contains the following variables (replace values with your own):
+
+```
+# Server
+NODE_ENV=development
+PORT=3000
+
+# Database
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=your_db_name
+POSTGRES_USER=your_db_user
+POSTGRES_PASSWORD=your_db_password
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# RabbitMQ
+RABBITMQ_HOST=localhost
+RABBITMQ_PORT=5672
+RABBITMQ_USER=your_rabbitmq_user
+RABBITMQ_PASSWORD=your_rabbitmq_password
+RABBITMQ_MANAGEMENT_PORT=15672
+
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRATION_TIME=3600
+
+# API limits
+RATE_LIMIT_TTL=60000
+RATE_LIMIT_MAX=5
+USER_REQUEST_LIMIT=22
+REQUEST_COUNT_EXPIRATION=86400
+
+# Cache
+CACHE_TTL=5
+
+# Email
+EMAIL_USER=your_email@example.com
+EMAIL_PASSWORD=your_email_password
+
+# Weather API
+WEATHER_API_KEY=your_weather_api_key
+WEATHER_API_URL=https://api.openweathermap.org/data/2.5/forecast
 ```
 
-## Compile and run the project
+Note: For security reasons, it's crucial to use different values for sensitive information like passwords and API keys in your actual production environment.
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# uspino
+## Additional Notes
+- Ensure proper error handling and logging throughout the application
+- Follow Nest.js best practices and design patterns
+- Implement proper input validation for all endpoints
+- Consider implementing a logging system for easier debugging and monitoring
+- Document the API endpoints for easier integration and testing
