@@ -45,7 +45,10 @@ export class WeatherService {
     if (isLimitExceeded) {
       const userLimit = this.userLimitService.getUserLimit();
       await this.rabbitMQService.sendLimitExceededMessage(userId, userLimit);
-      throw new HttpException('User request limit exceeded', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'User request limit exceeded',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
   }
 

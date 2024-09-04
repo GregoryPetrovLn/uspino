@@ -11,7 +11,7 @@ export class UserThrottlerGuard extends ThrottlerGuard {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const res = context.switchToHttp().getResponse();
 
-    // Check if res.header is a function, if not, provide a fallback
+
     if (typeof res.header !== 'function') {
       res.header = (name: string, value: string) => {
         if (!res.headers) {

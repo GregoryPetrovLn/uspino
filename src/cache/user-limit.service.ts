@@ -44,7 +44,6 @@ export class UserLimitService {
 
   async isLimitExceeded(userId: number): Promise<boolean> {
     const count = await this.getUserRequestCount(userId);
-    console.log('count',count)
     return count >= this.defaultUserLimit;
   }
 

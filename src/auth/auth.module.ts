@@ -14,7 +14,7 @@ import { LocalStrategy } from './local.strategy';
   imports: [
     UsersModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    ConfigModule, // Make sure this is here
+    ConfigModule, 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

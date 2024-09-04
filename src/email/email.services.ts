@@ -14,10 +14,10 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
-      secure: false, // Use TLS
+      secure: false,
       auth: {
         user: this.configService.get<string>('EMAIL_USER'),
-        pass: this.configService.get<string>('EMAIL_PASSWORD'), // Note: Changed from EMAIL_PASS to EMAIL_PASSWORD
+        pass: this.configService.get<string>('EMAIL_PASSWORD'), 
       },
     });
   }
@@ -28,11 +28,10 @@ export class EmailService {
     if (!user) {
       throw new Error(`User with ID ${userId} not found`);
     }
-    console.log('sendLimitExceededEmail');
 
     const mailOptions = {
       from: this.configService.get<string>('EMAIL_USER'),
-      to: user.email, // Changed back to user.email
+      to: user.email, 
       subject: 'Weather API Request Limit Exceeded',
       text: `Dear ${user.firstName},\n\nYou have exceeded your daily limit of ${userLimit} requests for the Weather API.\n\nPlease try again tomorrow or upgrade your plan for more requests.\n\nBest regards,\nWeather API Team`,
     };

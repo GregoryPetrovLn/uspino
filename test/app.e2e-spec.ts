@@ -185,7 +185,6 @@ describe('AppController (e2e)', () => {
 
       token = loginResponse.body.access_token;
 
-      // Reset mocks before each test
       jest.clearAllMocks();
       mockUserLimitService.isLimitExceeded.mockResolvedValue(false);
       mockUserLimitService.incrementUserRequestCount.mockResolvedValue(1);
@@ -214,7 +213,6 @@ describe('AppController (e2e)', () => {
           .expect(200);
       }
 
-      // The 6th request should be rate limited
       await request(app.getHttpServer())
         .get('/weather?city=London&date=2023-09-01')
         .set('Authorization', `Bearer ${token}`)
