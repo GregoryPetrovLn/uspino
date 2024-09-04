@@ -19,7 +19,7 @@ import { WeatherService } from './weather.service';
     HttpModule,
     AuthModule,
     CacheModule,
-    RabbitMQModule, 
+    RabbitMQModule,
     UsersModule,
   ],
   providers: [

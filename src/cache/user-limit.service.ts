@@ -39,17 +39,23 @@ export class UserLimitService {
   async getUserRequestCount(userId: number): Promise<number> {
     const key = this.getUserKey(userId);
     const count = await this.redis.get(key);
-    console.log('count--->', count);
-    console.log('defaultUserLimit', this.defaultUserLimit);
     return count ? parseInt(count, 10) : 0;
   }
 
   async isLimitExceeded(userId: number): Promise<boolean> {
     const count = await this.getUserRequestCount(userId);
+    console.log('count',count)
     return count >= this.defaultUserLimit;
   }
 
   getUserLimit(): number {
     return this.defaultUserLimit;
+  }
+
+  async resetRateLimits(): Promise<void> {
+    const keys = await this.redis.keys('user:*:requestCount');
+    if (keys.length > 0) {
+      await this.redis.del(...keys);
+    }
   }
 }
